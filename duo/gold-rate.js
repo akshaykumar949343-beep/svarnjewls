@@ -237,13 +237,16 @@ function renderTicker(rate) {
 function renderHeaderBadge(rate) {
   const el = document.getElementById('headerGoldRate');
   if (!el) return;
+  const p24 = formatINR(rate.perGram[24]);
   const p22 = formatINR(rate.perGram[22]);
-  // the full 24K/22K/18K + city-cycling display lives in the wide ticker
-  // bar below the hero; this pill is the always-visible (fixed header)
-  // quick-glance version, so it stays to one karat but still carries the
-  // same live-blink treatment
-  el.innerHTML = `<i class="gp-dot"></i>22K <b>${p22}</b><span class="gp-suffix">/g</span>`;
-  el.title = `Live 22K gold rate: ${p22}/g (${rate.isFallback ? 'estimated' : relativeTime(rate.updatedAt)}) — full 24K/22K/18K rate further down the page`;
+  const p18 = formatINR(rate.perGram[18]);
+  el.innerHTML =
+    `<i class="gp-dot"></i>` +
+    `<span class="gp-item gp-extra">24K <b>${p24}</b></span>` +
+    `<span class="gp-item">22K <b>${p22}</b></span>` +
+    `<span class="gp-item gp-extra">18K <b>${p18}</b></span>` +
+    `<span class="gp-suffix">/g</span>`;
+  el.title = `Live gold rate — 24K: ${p24}/g, 22K: ${p22}/g, 18K: ${p18}/g (${rate.isFallback ? 'estimated' : relativeTime(rate.updatedAt)})`;
   el.classList.add('is-ready');
 }
 
