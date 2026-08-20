@@ -7,3 +7,13 @@ originals/
 # unused/superseded video files (not referenced by any page)
 second section.mp4
 duo/video/category-video-old-1280.mp4
+
+# purchased font's source package — only the two webfont files it contains
+# (already copied into duo/fonts/) are actually used by the site
+Esmetralda - Font by Ferry Hadriyan/
+esmetralda-handwritten-font-*.zip
+
+# Josefin Sans is loaded from Google Fonts (see the <link> in <head>),
+# not self-hosted, so these local source files aren't needed by the site
+Josefin_Sans/
+Josefin_Sans.zip
