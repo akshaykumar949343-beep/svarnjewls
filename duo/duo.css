@@ -1,0 +1,183 @@
+/* ============================================================
+   WEAR — a scroll-scrubbed ring ↔ necklace morph, shop by category.
+   Pure CSS/JS, no WebGL: a sticky pin holding one absolutely-
+   stacked block per category (media left/right + label + CTA),
+   cross-dissolving between them as the section scrolls past.
+   ============================================================ */
+
+#wear{
+  /* everything below is the site's own brand palette/type (var(--blue),
+     var(--gold), var(--display), var(--sans), etc. from :root) — no
+     one-off colours or fonts invented for this section */
+  --w-peacock:#0d6d76;
+  --w-line:rgba(247,243,236,.2);
+  --w-ease:cubic-bezier(.16,1,.3,1);
+
+  position:relative;
+  background:var(--porcelain);
+  color:var(--ink);
+  /* the static head below adds its own normal-flow height on top of this —
+     .wear-pin (a direct child) needs a tall containing block to stay stuck
+     for the whole scroll-scrub journey, so this has to stay generous */
+  height:700vh;
+  overflow-x:clip;
+  /* the site's global `section{padding:...}` rule would otherwise inset the
+     media a full --pad from each edge, undercutting the edge-bleed layout —
+     the ID selector's specificity overrides it regardless of source order */
+  padding:0;
+}
+#wear *{box-sizing:border-box}
+
+.wear-head{
+  position:relative;z-index:2;
+  text-align:center;
+  padding:clamp(72px,11vh,130px) 24px clamp(44px,7vh,80px);
+}
+.wear-heading{
+  margin:0 0 20px;
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(40px,7vw,84px);line-height:1.05;
+  color:var(--ink);
+}
+.wear-eyebrow{
+  font-family:var(--sans);font-size:clamp(15px,1.6vw,19px);font-weight:600;
+  letter-spacing:.32em;text-transform:uppercase;
+  color:var(--blue);
+}
+
+.wear-pin{
+  position:sticky;top:0;height:100vh;
+  overflow:hidden;
+}
+
+.wear-progress{
+  position:absolute;left:50%;bottom:clamp(28px,6vh,64px);
+  transform:translateX(-50%);
+  z-index:3;
+  width:120px;height:1px;background:var(--w-line);
+}
+.wear-progress i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--sand))}
+
+.wear-cat{
+  position:absolute;inset:0;
+  /* the first category is visible by default so the section still shows its
+     content if duo.js never runs (script error, blocked, etc.) — JS takes
+     over from here the moment it initializes */
+  opacity:0;
+  pointer-events:none;
+  will-change:opacity,filter;
+}
+.wear-cat[data-cat="0"]{opacity:1;pointer-events:auto}
+/* once the section scrolls into view, the rAF loop in duo.js takes over
+   with inline opacity on every .wear-cat — inline style outranks this rule
+   automatically, so no extra hook is needed here */
+
+/* ---------- the persistent scroll-scrubbed category video ---------- */
+.wear-video-wrap{
+  position:absolute;inset:0;
+  z-index:0;
+}
+.wear-video-wrap video{
+  width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  display:block;
+}
+.wear-video-fade{
+  position:absolute;inset:0;pointer-events:none;
+  /* darkest around the bottom-right corner, where the label + CTA sit */
+  /* darkened at both bottom corners — the label/CTA block can sit on
+     either side depending on the category */
+  background:
+    radial-gradient(ellipse 50% 58% at 18% 84%,rgba(7,12,20,.6) 0%,rgba(7,12,20,0) 68%),
+    radial-gradient(ellipse 50% 58% at 82% 84%,rgba(7,12,20,.6) 0%,rgba(7,12,20,0) 68%),
+    linear-gradient(180deg,rgba(7,12,20,.3) 0%,rgba(7,12,20,.05) 26%,rgba(7,12,20,.12) 62%,rgba(7,12,20,.42) 100%);
+}
+
+@media(prefers-reduced-motion:reduce){
+  .wear-video-wrap{display:none}
+}
+#wear.no-motion .wear-video-wrap{display:none}
+
+.wear-center{
+  position:absolute;right:clamp(24px,6vw,90px);bottom:clamp(48px,10vh,110px);
+  z-index:2;
+  width:min(60vw,420px);
+  text-align:left;
+  padding:0;
+}
+/* Necklaces + Bangles sit on the left; Chains, Earrings and Rings stay right */
+.wear-cat[data-cat="0"] .wear-center,
+.wear-cat[data-cat="1"] .wear-center{
+  right:auto;left:clamp(24px,6vw,90px);
+}
+.wear-label{
+  margin:0 0 22px;
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(34px,6vw,64px);line-height:1;
+  color:var(--porcelain);
+}
+.wear-desc{
+  position:relative;
+  margin:0 0 34px;
+  padding-top:22px;
+  max-width:34ch;
+  font-family:var(--sans);font-size:clamp(14px,1.3vw,16px);line-height:1.65;
+  letter-spacing:.01em;
+  color:color-mix(in srgb, var(--sand) 84%, transparent);
+  text-shadow:0 2px 10px rgba(7,12,20,.5);
+}
+.wear-desc::before{
+  content:'';position:absolute;top:0;left:0;
+  width:44px;height:1px;background:var(--gold);
+}
+.wear-cta{
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  min-width:clamp(240px,20vw,300px);height:clamp(56px,6.4vw,66px);padding:0 34px;
+  font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink);background:var(--porcelain);
+  border-radius:999px;
+  box-shadow:0 8px 28px rgba(7,12,20,.35);
+  transition:background .35s ease,color .35s ease,transform .35s ease;
+}
+.wear-cta:hover{background:var(--w-peacock);color:var(--porcelain);transform:translateY(-2px)}
+.wear-cta-arrow{transition:transform .4s var(--w-ease)}
+.wear-cta:hover .wear-cta-arrow{transform:translateX(3px)}
+
+/* ---------- reduced motion: unroll into stacked, fully static panels ---------- */
+#wear.no-motion{height:auto}
+#wear.no-motion .wear-pin{position:relative;height:auto;overflow:visible}
+#wear.no-motion .wear-progress{display:none}
+#wear.no-motion .wear-cat{
+  position:relative;inset:auto;opacity:1!important;filter:none!important;
+  pointer-events:auto!important;
+  display:flex;align-items:center;justify-content:center;
+  padding:56px clamp(20px,6vw,64px);
+}
+#wear.no-motion .wear-cat + .wear-cat{border-top:1px solid var(--w-line)}
+#wear.no-motion .wear-center{position:relative;top:auto;left:auto;right:auto;bottom:auto;transform:none;width:auto;text-align:center}
+
+@media(prefers-reduced-motion:reduce){
+  #wear .wear-cat,#wear .wear-eyebrow,#wear .wear-progress,#wear .wear-cta{
+    transition:none!important;
+  }
+}
+
+/* ---------- responsive ---------- */
+@media(max-width:900px){
+  #wear{height:610vh}
+  .wear-heading{font-size:clamp(32px,9vw,52px)}
+  .wear-center{width:min(78vw,340px);right:clamp(18px,5vw,40px);bottom:clamp(40px,9vh,80px)}
+  .wear-label{font-size:clamp(24px,7vw,36px)}
+  .wear-cta{min-width:0;width:100%;height:56px;padding:0 26px;font-size:13px}
+}
+@media(max-width:560px){
+  #wear{height:520vh}
+  .wear-head{padding:clamp(56px,10vh,90px) 20px clamp(32px,6vh,56px)}
+  .wear-center{width:min(80vw,300px);right:16px;bottom:36px}
+  .wear-cta{height:52px}
+}
+
+@media(pointer:fine) and (hover:hover){
+  #wear .wear-cta{cursor:none}
+}

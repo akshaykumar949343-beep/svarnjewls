@@ -1,0 +1,9 @@
+.DS_Store
+
+# raw/unedited source footage kept locally for reference only — not used
+# by any page, and individually over GitHub's 100MB file limit
+originals/
+
+# unused/superseded video files (not referenced by any page)
+second section.mp4
+duo/video/category-video-old-1280.mp4
