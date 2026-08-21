@@ -472,16 +472,24 @@ body:not(.revealed) .ticker{opacity:0}
 .cats{display:flex;gap:clamp(10px,2vw,34px);align-items:flex-end;flex-wrap:wrap}
 .cat{flex:1 1 130px;text-align:center;display:block}
 .cat .thumb{
+  position:relative;
   height:clamp(140px,17vw,230px);
   display:flex;align-items:flex-end;justify-content:center;
   margin-bottom:clamp(14px,1.8vw,22px);
 }
 .cat .thumb img{
   width:100%;height:100%;object-fit:contain;background:none;
-  opacity:0;transform:translateY(22px) scale(.94);
-  transition:opacity .55s ease, transform .7s cubic-bezier(.2,0,.2,1);
 }
-.cat:hover .thumb img, .cat:focus-visible .thumb img{opacity:1;transform:none}
+/* the plain product cutout shows by default; moving the cursor near the
+   tile crossfades to the model-wearing shot instead (added per category
+   as those photos come in — until then .alt just mirrors the base image,
+   so hover is a no-op rather than showing something blank) */
+.cat .thumb .alt{
+  position:absolute;inset:0;
+  opacity:0;
+  transition:opacity .5s ease;
+}
+.cat:hover .thumb .alt, .cat:focus-visible .thumb .alt{opacity:1}
 .cat .label{
   display:inline-block;font-size:clamp(13px,1.5vw,16.5px);
   letter-spacing:.22em;text-transform:uppercase;
@@ -489,9 +497,6 @@ body:not(.revealed) .ticker{opacity:0}
   transition:color .35s, border-color .35s;
 }
 .cat:hover .label{color:var(--blue);border-color:var(--blue)}
-@media(hover:none){
-  .cat .thumb img{opacity:1;transform:none}
-}
 
 /* ============ WORLD TILES ============ */
 .center-head{text-align:center;margin-bottom:clamp(34px,4.6vw,62px)}
@@ -1431,7 +1436,10 @@ const CATS = [
 ];
 document.getElementById('catgrid').innerHTML = CATS.map(c => `
   <a class="cat" href="${c.n === 'Shop all' ? 'category' : `category?cat=${encodeURIComponent(c.n)}`}" data-cursor="Shop">
-    <span class="thumb"><img src="${c.img}" alt="" loading="lazy"></span>
+    <span class="thumb">
+      <img src="${c.img}" alt="" loading="lazy">
+      <img class="alt" src="${c.imgAlt || c.img}" alt="" aria-hidden="true" loading="lazy">
+    </span>
     <span class="label">${c.n}</span>
   </a>`).join('');
 

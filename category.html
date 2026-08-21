@@ -867,6 +867,7 @@ body.nav-open{overflow:hidden}
   padding:0 var(--pad) clamp(70px,9vw,110px);
 }
 .cat-empty{padding:0 var(--pad) 120px;color:var(--stone);font-size:16.5px}
+.cat-empty a{color:var(--blue);text-decoration:underline;text-underline-offset:3px}
 .cat-loading{padding:0 var(--pad) 120px;color:var(--stone);font-size:15px}
 
 @media(max-width:1100px){.cat-grid{grid-template-columns:repeat(3,1fr)}}
@@ -1110,7 +1111,6 @@ document.body.classList.add('revealed');
   const shown = catName
     ? products.filter((p) => (p.category || '').toLowerCase() === catName.toLowerCase())
     : products;
-  const list = shown.length ? shown : products; // never show a hard-empty page
 
   const displayName = requested || 'All Jewellery';
   document.getElementById('pdpTitle').textContent = `${displayName} — Svarn Jewels`;
@@ -1118,7 +1118,7 @@ document.body.classList.add('revealed');
   heading.textContent = displayName;
   count.textContent = shown.length
     ? `${shown.length} piece${shown.length === 1 ? '' : 's'}`
-    : `No pieces in ${displayName} yet — showing the full collection`;
+    : `No pieces in ${displayName} yet`;
 
   const allCats = ['All', ...new Set(products.map((p) => p.category).filter(Boolean))];
   chips.innerHTML = allCats.map((c) => {
@@ -1127,8 +1127,17 @@ document.body.classList.add('revealed');
     return `<a class="cat-chip${active ? ' is-active' : ''}" href="${href}">${c}</a>`;
   }).join('');
 
-  grid.innerHTML = list.map((p) => productCard(p, rate)).join('');
-  grid.querySelectorAll('.rv').forEach((el) => el.classList.add('in'));
+  if (shown.length) {
+    grid.innerHTML = shown.map((p) => productCard(p, rate)).join('');
+    grid.querySelectorAll('.rv').forEach((el) => el.classList.add('in'));
+  } else {
+    // a requested category with nothing in it yet — show its own empty
+    // state instead of quietly falling back to unrelated products
+    grid.innerHTML = '';
+    grid.insertAdjacentHTML('afterend',
+      `<div class="cat-empty">No pieces in ${displayName} yet — check back soon, or explore
+       <a href="category">the full collection</a>.</div>`);
+  }
 })();
 /* ---------- DRAWERS ---------- */
 const scrim = document.getElementById('scrim');
