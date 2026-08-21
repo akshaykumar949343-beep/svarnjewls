@@ -1205,7 +1205,7 @@ document.body.classList.add('revealed');
           <h3>Price breakdown</h3>
           <table class="pdp-breakdown">
             <tr><td>Gold (${product.w}g, ${product.purity}K)</td><td>${fmt(c.goldValue)}</td></tr>
-            <tr><td>Making charges (${product.making}%)</td><td>${fmt(c.making)}</td></tr>
+            <tr><td>Making charges</td><td>${fmt(c.making)}</td></tr>
             ${c.stone ? `<tr><td>Stone &amp; diamond charges</td><td>${fmt(c.stone)}</td></tr>` : ''}
             <tr><td>GST (3%)</td><td>${fmt(c.gst)}</td></tr>
             <tr class="pdp-total"><td>Total</td><td>${fmt(c.total)}</td></tr>
