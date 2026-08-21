@@ -32,7 +32,21 @@ const LIVE_CACHE_KEY = 'svarn-gold-rate-live-v1';
 const CACHE_MS = 30 * 60 * 1000; // 30 min
 const REFRESH_MS = 15 * 60 * 1000; // re-check every 15 min while the tab is open
 const OVERRIDE_MAX_AGE_DAYS = 2; // a forgotten manual rate auto-expires back to the live feed
-const FALLBACK_24K_PER_GRAM = 13800; // only used if every fetch/cache attempt fails
+const FALLBACK_24K_PER_GRAM = 15870; // only used if every fetch/cache attempt fails; already India-duty-adjusted so it doesn't undercut the normal price
+
+/* GoldAPI/the free fallback both return raw INTERNATIONAL spot gold
+   converted to INR by forex rate alone — that's not what gold actually
+   costs landed in India. India's total gold import duty is 15% (10%
+   Basic Customs Duty + 5% AIDC) as of the 13 May 2026 hike, so that gets
+   added on top here. GST (3%) is applied separately later in each page's
+   calcPrice(), not here, to avoid double-counting it.
+   This changes with government policy/the union budget — verify it's
+   still current if pricing ever looks off. */
+const INDIA_IMPORT_DUTY_PCT = 15;
+function applyIndiaDuty(perGram) {
+  const mult = 1 + INDIA_IMPORT_DUTY_PCT / 100;
+  return { 24: perGram[24] * mult, 22: perGram[22] * mult, 18: perGram[18] * mult };
+}
 
 let cached = null; // {perGram:{24:..,22:..,18:..}, updatedAt: epoch ms}
 let inflight = null;
@@ -86,7 +100,7 @@ async function fetchFromGoldAPI() {
   const data = await res.json();
   if (!data.price_gram_24k) throw new Error('malformed GoldAPI response');
   return {
-    perGram: { 24: data.price_gram_24k, 22: data.price_gram_22k, 18: data.price_gram_18k },
+    perGram: applyIndiaDuty({ 24: data.price_gram_24k, 22: data.price_gram_22k, 18: data.price_gram_18k }),
     updatedAt: Date.now(),
   };
 }
@@ -105,7 +119,7 @@ async function fetchFromFreeFallback() {
 
   const per24 = (usdPerOz * usdToInr) / GRAMS_PER_TROY_OZ;
   return {
-    perGram: { 24: per24, 22: per24 * (22 / 24), 18: per24 * (18 / 24) },
+    perGram: applyIndiaDuty({ 24: per24, 22: per24 * (22 / 24), 18: per24 * (18 / 24) }),
     updatedAt: Date.now(),
   };
 }
