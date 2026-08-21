@@ -4,21 +4,22 @@
    page is computed FROM this rate (see PRODUCT DATA below) rather than
    hardcoded, so it moves with the real market.
 
-   Primary source is GoldAPI.io (returns INR/gram per karat directly —
-   no manual troy-oz/USD conversion needed), using the project's API
-   key. That key is necessarily visible client-side (there's no backend
-   to hide it behind), so if its free-tier quota ever gets exhausted —
-   by real traffic or by someone lifting the key from the page — this
-   falls back automatically to two free, keyless, CORS-open APIs
-   (gold-api.com for spot XAU + open.er-api.com for USD→INR) doing the
-   same conversion by hand, then to whatever was last cached, then to a
-   conservative hardcoded number. The site never shows nothing.
+   Primary source is MetalPriceAPI (10,000 req/month free tier — GoldAPI's
+   100/month kept getting exhausted by ordinary testing traffic). Falls
+   back to GoldAPI if that ever fails, then to two free keyless CORS-open
+   APIs (gold-api.com for spot XAU + open.er-api.com for USD→INR) doing
+   the same conversion by hand, then to whatever was last cached, then to
+   a conservative hardcoded number. The site never shows nothing. All
+   these keys are necessarily visible client-side (there's no backend to
+   hide them behind) — that's an accepted tradeoff of a static site, not
+   an oversight.
 
    Cached in localStorage for CACHE_MS so a burst of page loads/reloads
    doesn't hammer either API; refreshed in the background on an
    interval so a tab left open stays current.
    ============================================================ */
 
+const METALPRICE_KEY = 'e5c8c0e870478c9e81f829b1c78b8a9f';
 const GOLDAPI_KEY = 'goldapi-efb14a8568ac2e3ebf545ab86645e505-io';
 // prefixed — duo/products.js is a separate classic script sharing this
 // same global scope and declares its own SANITY_PROJECT_ID/DATASET;
@@ -91,6 +92,25 @@ async function fetchFromSanityOverride() {
   };
 }
 
+async function fetchFromMetalPriceAPI() {
+  const res = await fetch(
+    `https://api.metalpriceapi.com/v1/latest?api_key=${METALPRICE_KEY}&base=INR&currencies=XAU`,
+    { cache: 'no-store' }
+  );
+  if (!res.ok) throw new Error(`MetalPriceAPI failed: ${res.status}`);
+  const data = await res.json();
+  // INRXAU is INR per troy ounce of pure (24K) gold directly — same
+  // international-spot-via-forex conversion as the other feeds, so it
+  // still needs the India duty adjustment
+  const perOz = data.rates && data.rates.INRXAU;
+  if (!data.success || !perOz) throw new Error('malformed MetalPriceAPI response');
+  const per24 = perOz / GRAMS_PER_TROY_OZ;
+  return {
+    perGram: applyIndiaDuty({ 24: per24, 22: per24 * (22 / 24), 18: per24 * (18 / 24) }),
+    updatedAt: Date.now(),
+  };
+}
+
 async function fetchFromGoldAPI() {
   const res = await fetch('https://www.goldapi.io/api/XAU/INR', {
     headers: { 'x-access-token': GOLDAPI_KEY },
@@ -134,10 +154,15 @@ async function fetchLive() {
 
   let rate;
   try {
-    rate = await fetchFromGoldAPI();
+    rate = await fetchFromMetalPriceAPI();
   } catch (err) {
-    console.warn('[gold-rate] GoldAPI failed, trying free fallback', err);
-    rate = await fetchFromFreeFallback();
+    console.warn('[gold-rate] MetalPriceAPI failed, trying GoldAPI', err);
+    try {
+      rate = await fetchFromGoldAPI();
+    } catch (err2) {
+      console.warn('[gold-rate] GoldAPI failed, trying free fallback', err2);
+      rate = await fetchFromFreeFallback();
+    }
   }
   writeCache(rate);
   return rate;
@@ -186,10 +211,15 @@ function getLiveDisplayRate() {
   if (liveInflight) return liveInflight;
   liveInflight = (async () => {
     try {
-      return await fetchFromGoldAPI();
+      return await fetchFromMetalPriceAPI();
     } catch (err) {
-      console.warn('[gold-rate] GoldAPI failed for display feed, trying free fallback', err);
-      return await fetchFromFreeFallback();
+      console.warn('[gold-rate] MetalPriceAPI failed for display feed, trying GoldAPI', err);
+      try {
+        return await fetchFromGoldAPI();
+      } catch (err2) {
+        console.warn('[gold-rate] GoldAPI failed for display feed, trying free fallback', err2);
+        return await fetchFromFreeFallback();
+      }
     }
   })()
     .then((rate) => { liveCached = rate; writeCache(rate, LIVE_CACHE_KEY); liveInflight = null; return rate; })
