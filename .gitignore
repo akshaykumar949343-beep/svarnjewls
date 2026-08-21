@@ -7,6 +7,7 @@ originals/
 # unused/superseded video files (not referenced by any page)
 second section.mp4
 duo/video/category-video-old-1280.mp4
+duo/video/category-video-old.mp4
 
 # purchased font's source package — only the two webfont files it contains
 # (already copied into duo/fonts/) are actually used by the site
