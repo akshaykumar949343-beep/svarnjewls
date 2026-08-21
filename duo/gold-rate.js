@@ -28,6 +28,7 @@ const GOLDRATE_SANITY_PROJECT_ID = 'h2a44pwh';
 const GOLDRATE_SANITY_DATASET = 'production';
 const GRAMS_PER_TROY_OZ = 31.1034768;
 const CACHE_KEY = 'svarn-gold-rate-v1';
+const LIVE_CACHE_KEY = 'svarn-gold-rate-live-v1';
 const CACHE_MS = 30 * 60 * 1000; // 30 min
 const REFRESH_MS = 15 * 60 * 1000; // re-check every 15 min while the tab is open
 const OVERRIDE_MAX_AGE_DAYS = 2; // a forgotten manual rate auto-expires back to the live feed
@@ -36,17 +37,17 @@ const FALLBACK_24K_PER_GRAM = 13800; // only used if every fetch/cache attempt f
 let cached = null; // {perGram:{24:..,22:..,18:..}, updatedAt: epoch ms}
 let inflight = null;
 
-function readCache() {
+function readCache(key = CACHE_KEY) {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || !parsed.perGram || !parsed.updatedAt) return null;
     return parsed;
   } catch (e) { return null; }
 }
-function writeCache(rate) {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify(rate)); } catch (e) { /* storage unavailable */ }
+function writeCache(rate, key = CACHE_KEY) {
+  try { localStorage.setItem(key, JSON.stringify(rate)); } catch (e) { /* storage unavailable */ }
 }
 
 /* the business's own quoted rate, set in the Sanity dashboard ("Today's
@@ -128,9 +129,12 @@ async function fetchLive() {
   return rate;
 }
 
-/* Returns a rate object, using the cache when it's fresh enough and
-   only hitting the network when it's stale or missing. Concurrent
-   callers share one in-flight request instead of firing duplicates. */
+/* Returns the PRICING rate — what calcPrice() on every page actually
+   charges. Checks the Sanity override first (the 9:30/12:30/18:30
+   checkpoint job writes here), so product prices hold steady between
+   checkpoints instead of chasing every tick of the market. Falls back to
+   the live feed if no recent override exists. Concurrent callers share
+   one in-flight request instead of firing duplicates. */
 function getGoldRate() {
   if (cached && Date.now() - cached.updatedAt < CACHE_MS) return Promise.resolve(cached);
   const fromStorage = readCache();
@@ -149,6 +153,40 @@ function getGoldRate() {
       return { perGram: { 24: FALLBACK_24K_PER_GRAM, 22: FALLBACK_24K_PER_GRAM * (22 / 24), 18: FALLBACK_24K_PER_GRAM * (18 / 24) }, updatedAt: 0, isFallback: true };
     });
   return inflight;
+}
+
+/* Returns the DISPLAY rate — what the header pill and wide ticker show.
+   Always the raw continuous market feed, ignoring the Sanity checkpoint
+   override, so the ticker looks and feels genuinely live for visitors
+   even while the actual charged price is holding steady between
+   checkpoints. Cached separately from the pricing rate. */
+let liveCached = null;
+let liveInflight = null;
+function getLiveDisplayRate() {
+  if (liveCached && Date.now() - liveCached.updatedAt < CACHE_MS) return Promise.resolve(liveCached);
+  const fromStorage = readCache(LIVE_CACHE_KEY);
+  if (fromStorage && Date.now() - fromStorage.updatedAt < CACHE_MS) {
+    liveCached = fromStorage;
+    return Promise.resolve(liveCached);
+  }
+  if (liveInflight) return liveInflight;
+  liveInflight = (async () => {
+    try {
+      return await fetchFromGoldAPI();
+    } catch (err) {
+      console.warn('[gold-rate] GoldAPI failed for display feed, trying free fallback', err);
+      return await fetchFromFreeFallback();
+    }
+  })()
+    .then((rate) => { liveCached = rate; writeCache(rate, LIVE_CACHE_KEY); liveInflight = null; return rate; })
+    .catch((err) => {
+      liveInflight = null;
+      console.warn('[gold-rate] live display fetch failed, falling back', err);
+      const stale = fromStorage || liveCached;
+      if (stale) return stale;
+      return { perGram: { 24: FALLBACK_24K_PER_GRAM, 22: FALLBACK_24K_PER_GRAM * (22 / 24), 18: FALLBACK_24K_PER_GRAM * (18 / 24) }, updatedAt: 0, isFallback: true };
+    });
+  return liveInflight;
 }
 
 function formatINR(n) {
@@ -251,7 +289,9 @@ function renderHeaderBadge(rate) {
 }
 
 async function refresh() {
-  const rate = await getGoldRate();
+  // the ticker/badge always show the live market feed, not the pricing
+  // checkpoint — see getLiveDisplayRate() above for why
+  const rate = await getLiveDisplayRate();
   renderTicker(rate);
   renderHeaderBadge(rate);
   document.dispatchEvent(new CustomEvent('goldrate:update', { detail: rate }));
@@ -261,5 +301,8 @@ async function refresh() {
 refresh();
 setInterval(refresh, REFRESH_MS);
 
-/* small public surface other scripts (product pricing) can use */
-window.GoldRate = { get: getGoldRate, formatINR };
+/* small public surface other scripts can use — get() is the PRICING rate
+   (checkpoint-locked, used by calcPrice on every page), getLive() is the
+   same continuous feed the ticker displays, exposed in case a future page
+   wants to show it directly */
+window.GoldRate = { get: getGoldRate, getLive: getLiveDisplayRate, formatINR };
