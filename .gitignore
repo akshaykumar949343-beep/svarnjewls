@@ -17,3 +17,7 @@ esmetralda-handwritten-font-*.zip
 # not self-hosted, so these local source files aren't needed by the site
 Josefin_Sans/
 Josefin_Sans.zip
+
+# raw uploaded source images — only the one actually used by a page
+# (copied into duo/img/) needs to be in the deployed site
+catogery_images/
