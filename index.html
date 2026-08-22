@@ -469,27 +469,36 @@ body:not(.revealed) .ticker{opacity:0}
 .mq-item .card-img{aspect-ratio:4/5}
 
 /* ============ CATEGORY HOVER ROW ============ */
-.cats{display:flex;gap:clamp(10px,2vw,34px);align-items:flex-end;flex-wrap:wrap}
+.cats{display:flex;gap:clamp(10px,2vw,34px);align-items:flex-start;flex-wrap:wrap}
 .cat{flex:1 1 130px;text-align:center;display:block}
-.cat .thumb{
-  position:relative;
-  height:clamp(140px,17vw,230px);
-  display:flex;align-items:flex-end;justify-content:center;
+/* a plain bordered card box — the product cutout sits inside at rest;
+   moving the cursor near the tile flips the card in 3D to reveal the
+   model-wearing shot on the back (added per category as those photos
+   come in — until then the back just mirrors the front, so hovering is
+   a no-op rather than flipping to something blank) */
+.cat-card{
+  display:block;position:relative;
+  aspect-ratio:4/5;
+  background:var(--sand);
+  border:1px solid var(--line);
+  overflow:hidden;
+  perspective:1400px;
   margin-bottom:clamp(14px,1.8vw,22px);
 }
-.cat .thumb img{
-  width:100%;height:100%;object-fit:contain;background:none;
+.cat-card-inner{
+  display:block;position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform .7s cubic-bezier(.4,0,.2,1);
 }
-/* the plain product cutout shows by default; moving the cursor near the
-   tile crossfades to the model-wearing shot instead (added per category
-   as those photos come in — until then .alt just mirrors the base image,
-   so hover is a no-op rather than showing something blank) */
-.cat .thumb .alt{
+.cat:hover .cat-card-inner, .cat:focus-visible .cat-card-inner{transform:rotateY(180deg)}
+.cat-card-face{
   position:absolute;inset:0;
-  opacity:0;
-  transition:opacity .5s ease;
+  display:flex;align-items:center;justify-content:center;
+  padding:clamp(14px,2.2vw,30px);
+  backface-visibility:hidden;
 }
-.cat:hover .thumb .alt, .cat:focus-visible .thumb .alt{opacity:1}
+.cat-card-face img{width:100%;height:100%;object-fit:contain;background:none}
+.cat-card-back{transform:rotateY(180deg)}
 .cat .label{
   display:inline-block;font-size:clamp(13px,1.5vw,16.5px);
   letter-spacing:.22em;text-transform:uppercase;
@@ -497,6 +506,10 @@ body:not(.revealed) .ticker{opacity:0}
   transition:color .35s, border-color .35s;
 }
 .cat:hover .label{color:var(--blue);border-color:var(--blue)}
+@media(hover:none){
+  /* no hover on touch — keep the card static on its front face */
+  .cat:hover .cat-card-inner{transform:none}
+}
 
 /* ============ WORLD TILES ============ */
 .center-head{text-align:center;margin-bottom:clamp(34px,4.6vw,62px)}
@@ -1436,9 +1449,11 @@ const CATS = [
 ];
 document.getElementById('catgrid').innerHTML = CATS.map(c => `
   <a class="cat" href="${c.href ? `category?cat=${encodeURIComponent(c.href)}` : 'category'}" data-cursor="Shop">
-    <span class="thumb">
-      <img src="${c.img}" alt="" loading="lazy">
-      <img class="alt" src="${c.imgAlt || c.img}" alt="" aria-hidden="true" loading="lazy">
+    <span class="cat-card">
+      <span class="cat-card-inner">
+        <span class="cat-card-face cat-card-front"><img src="${c.img}" alt="" loading="lazy"></span>
+        <span class="cat-card-face cat-card-back"><img src="${c.imgAlt || c.img}" alt="" aria-hidden="true" loading="lazy"></span>
+      </span>
     </span>
     <span class="label">${c.n}</span>
   </a>`).join('');
