@@ -469,8 +469,12 @@ body:not(.revealed) .ticker{opacity:0}
 .mq-item .card-img{aspect-ratio:4/5}
 
 /* ============ CATEGORY HOVER ROW ============ */
-.cats{display:flex;gap:clamp(10px,2vw,34px);align-items:flex-start;flex-wrap:wrap}
-.cat{flex:1 1 130px;text-align:center;display:block}
+/* grid, not flex-wrap — flex-wrap grows a half-empty final row's items
+   wider to fill the leftover space, so cards came out different sizes
+   depending on how many landed in the last row at a given width. grid
+   keeps every column (and so every card) exactly the same size always. */
+.cats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(10px,2vw,34px)}
+.cat{text-align:center;display:block}
 /* a plain bordered card box — the product cutout sits inside at rest;
    moving the cursor near the tile flips the card in 3D to reveal the
    model-wearing shot on the back (added per category as those photos
@@ -500,7 +504,7 @@ body:not(.revealed) .ticker{opacity:0}
 .cat-card-face img{width:100%;height:100%;object-fit:contain;background:none}
 .cat-card-back{transform:rotateY(180deg)}
 .cat .label{
-  display:inline-block;font-size:clamp(13px,1.5vw,16.5px);
+  display:inline-block;max-width:100%;font-size:clamp(13px,1.5vw,16.5px);
   letter-spacing:.22em;text-transform:uppercase;
   border-bottom:1px solid var(--ink);padding-bottom:9px;
   transition:color .35s, border-color .35s;
@@ -836,6 +840,7 @@ body.nav-open{overflow:hidden}
   .assure-right{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:34px}
   .editorial{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr 1fr;gap:34px}
+  .cats{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:680px){
   .rail{grid-template-columns:repeat(2,1fr)}
@@ -852,7 +857,7 @@ body.nav-open{overflow:hidden}
   .posters{grid-template-columns:1fr;grid-template-rows:auto}
   .poster.tall{grid-row:auto}
   .poster:not(.tall){aspect-ratio:16/10}
-  .cat{flex:1 1 40%}
+  .cats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .editorial p{max-width:none}
   .footer-grid{grid-template-columns:1fr;gap:30px}
   .foot-row{padding:20px 0}
@@ -1441,7 +1446,7 @@ Promise.all([GoldRate.get(), Products.fetch()]).then(([rate, products]) => rende
 /* ---------- CATEGORIES — image appears on hover ---------- */
 const CATS = [
   {n:'Necklaces',         href:'Necklaces', img:'duo/img/necklace-category.png'},
-  {n:'Bangles/Bracelets', href:'Bangles',   img:'duo/img/bracelet-category.png'},
+  {n:'Bangles/<wbr>Bracelets', href:'Bangles', img:'duo/img/bracelet-category.png'},
   {n:'Chains',            href:'Chains',    img:'duo/img/chains-category.png'},
   {n:'Earrings',          href:'Earrings',  img:'duo/img/earrings-category.png'},
   {n:'Rings',             href:'Rings',     img:'duo/img/ring-category.png'},
