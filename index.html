@@ -1427,15 +1427,15 @@ Promise.all([GoldRate.get(), Products.fetch()]).then(([rate, products]) => rende
 
 /* ---------- CATEGORIES — image appears on hover ---------- */
 const CATS = [
-  {n:'Bangles',   img:ph(700,700,'Bangle','#FFFFFF','#004374')},
-  {n:'Earrings',  img:ph(700,700,'Earrings','#FFFFFF','#004374')},
-  {n:'Bracelets', img:ph(700,700,'Bracelet','#FFFFFF','#004374')},
-  {n:'Rings',     img:ph(700,700,'Ring','#FFFFFF','#004374')},
-  {n:'Necklaces', img:'duo/img/necklace-category.png'},
-  {n:'Shop all',  img:ph(700,700,'Shop All','#FFFFFF','#004374')}
+  {n:'Necklaces',         href:'Necklaces', img:'duo/img/necklace-category.png'},
+  {n:'Bangles/Bracelets', href:'Bangles',   img:'duo/img/bracelet-category.png'},
+  {n:'Chains',            href:'Chains',    img:'duo/img/chains-category.png'},
+  {n:'Earrings',          href:'Earrings',  img:ph(700,700,'Earrings','#FFFFFF','#004374')},
+  {n:'Rings',             href:'Rings',     img:ph(700,700,'Ring','#FFFFFF','#004374')},
+  {n:'Shop all',          href:null,        img:ph(700,700,'Shop All','#FFFFFF','#004374')}
 ];
 document.getElementById('catgrid').innerHTML = CATS.map(c => `
-  <a class="cat" href="${c.n === 'Shop all' ? 'category' : `category?cat=${encodeURIComponent(c.n)}`}" data-cursor="Shop">
+  <a class="cat" href="${c.href ? `category?cat=${encodeURIComponent(c.href)}` : 'category'}" data-cursor="Shop">
     <span class="thumb">
       <img src="${c.img}" alt="" loading="lazy">
       <img class="alt" src="${c.imgAlt || c.img}" alt="" aria-hidden="true" loading="lazy">
