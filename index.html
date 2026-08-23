@@ -202,6 +202,12 @@ body:not(.revealed) .header{opacity:0}
 .icons .pill:hover{color:var(--gold);border-color:var(--gold)}
 .header.solid .icons .pill{border-color:rgba(0,52,90,.3);background:rgba(255,255,255,.9)}
 .header.solid .icons .pill:hover{color:var(--blue);border-color:var(--blue)}
+@media(max-width:360px){
+  .header-in{gap:10px}
+  .wordmark img{height:26px}
+  .icons{gap:6px}
+  .icons .pill{padding:6px 10px;font-size:10px;letter-spacing:.08em}
+}
 
 .gold-pill{
   /* visible immediately with a "Loading…" placeholder (set in the HTML)
@@ -236,7 +242,19 @@ body:not(.revealed) .header{opacity:0}
   .gold-pill .gp-suffix{display:none}
 }
 @media(max-width:560px){
-  .gold-pill{display:none!important}
+  /* the icons row (search/bag/gold price/burger) genuinely can't fit on a
+     narrow phone — rather than hide the price, drop it onto its own
+     full-width strip right under the header instead of fighting for
+     space in that row. .header is the nearest positioned ancestor, so
+     this docks exactly at the header's own bottom edge. */
+  .icons .gold-pill{
+    position:absolute;top:100%;left:0;right:0;
+    justify-content:center;
+    padding:9px 16px;border-radius:0;border:none;border-top:1px solid rgba(255,255,255,.18);
+    background:var(--blue);
+  }
+  .gold-pill .gp-extra{display:inline-flex}
+  .gold-pill .gp-suffix{display:inline}
 }
 
 .burger{
@@ -293,6 +311,22 @@ body:not(.revealed) .ticker{opacity:0}
 @media(prefers-reduced-motion:reduce){
   .pre-video{opacity:1;animation:none}
 }
+
+/* the video ends on its own logo frame and holds there — this gate sits
+   below it and is the only way through; nothing auto-advances anymore */
+.pre-gate{
+  position:absolute;left:50%;bottom:12%;z-index:3;
+  transform:translate(-50%,14px);
+  padding:15px 38px;
+  font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;
+  color:#fff;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.6);border-radius:999px;
+  cursor:pointer;opacity:0;pointer-events:none;
+  transition:opacity .7s ease, transform .7s ease, background .35s ease, border-color .35s ease;
+}
+.preload.show-gate .pre-gate{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.pre-gate:hover,.pre-gate:focus-visible{background:var(--blue);border-color:var(--blue)}
+.preload.fly .pre-gate{opacity:0;transition:opacity .4s ease}
 
 /* ============ VIDEO HERO + GLASS SEARCH ============ */
 .vhero{position:relative;height:100svh;min-height:520px;overflow:hidden;background:var(--blue)}
@@ -360,7 +394,7 @@ body:not(.revealed) .ticker{opacity:0}
 }
 .bnr-slide{
   flex:0 0 var(--bnr-w,84%);position:relative;overflow:hidden;
-  aspect-ratio:16/7;background:var(--sand);
+  aspect-ratio:16/7;background:var(--sand);border-radius:20px;
   transition:opacity .8s ease;opacity:.55;
 }
 .bnr-slide.on{opacity:1}
@@ -379,7 +413,7 @@ body:not(.revealed) .ticker{opacity:0}
 }
 .card{display:block}
 .card-link{display:block}
-.card-img{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--sand)}
+.card-img{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--sand);border-radius:18px}
 .card-img img{position:absolute;inset:0;transition:opacity .7s ease, transform 1.2s ease}
 .card-img .alt{opacity:0}
 .card:hover .alt{opacity:1}
@@ -447,7 +481,7 @@ body:not(.revealed) .ticker{opacity:0}
 .bento-body i{
   display:inline-flex;align-items:center;gap:8px;font-style:normal;
   font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--gold);
+  color:#3E8EFF;
 }
 .bento-body i::after{content:'\2192';transition:transform .3s ease}
 .bento:hover .bento-body i::after{transform:translateX(4px)}
@@ -491,7 +525,7 @@ body:not(.revealed) .ticker{opacity:0}
   display:block;position:relative;
   aspect-ratio:4/5;
   background:var(--sand);
-  border:1px solid var(--line);
+  border:1px solid var(--line);border-radius:18px;
   overflow:hidden;
   perspective:1400px;
   margin-bottom:clamp(14px,1.8vw,22px);
@@ -559,7 +593,7 @@ body:not(.revealed) .ticker{opacity:0}
 .reel{
   position:absolute;top:50%;left:50%;
   width:clamp(210px,24vw,330px);aspect-ratio:9/16;
-  background:var(--blue);overflow:hidden;
+  background:var(--blue);overflow:hidden;border-radius:22px;
   transition:transform .75s cubic-bezier(.32,0,.16,1), opacity .75s ease, filter .75s ease;
   box-shadow:0 24px 60px rgba(0,67,116,.22);
 }
@@ -832,6 +866,7 @@ body.nav-open{overflow:hidden}
   .cats{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:680px){
+  #new{display:none}
   .rail{grid-template-columns:repeat(2,1fr)}
   .vhero{min-height:460px}
   .vsearch{padding:15px 18px;gap:12px}
@@ -887,7 +922,7 @@ body.nav-open{overflow:hidden}
     <div class="icons">
       <button class="pill" data-open="search"><span>Search</span></button>
       <button class="pill" data-open="cart"><span>Bag</span> <span class="count">(0)</span></button>
-      <span class="pill gold-pill" id="headerGoldRate" aria-live="polite"></span>
+      <span class="pill gold-pill is-ready" id="headerGoldRate" aria-live="polite"><i class="gp-dot"></i><span class="gp-item gp-extra">24K <b>₹15,870</b></span><span class="gp-item">22K <b>₹14,548</b></span><span class="gp-item gp-extra">18K <b>₹11,903</b></span><span class="gp-suffix">/g</span></span>
       <button class="burger" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navOverlay">
         <svg class="burger-frame" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <polygon points="14,0 86,0 100,14 100,86 86,100 14,100 0,86 0,14" fill="none" stroke="currentColor" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
@@ -904,6 +939,7 @@ body.nav-open{overflow:hidden}
   <div class="pre-video">
     <video id="preVideo" autoplay muted playsinline preload="auto" src="logo-intro.mp4"></video>
   </div>
+  <button class="pre-gate" id="preGate" type="button">Enter the World of Svarn</button>
 </div>
 
 <!-- ============ VIDEO HERO ============ -->
@@ -926,7 +962,18 @@ body.nav-open{overflow:hidden}
 </div>
 
 <!-- ============ GOLD RATE ============ -->
-<div id="goldTicker" aria-live="polite"><span class="gt-loading">Fetching today's gold rate…</span></div>
+<!-- pre-filled with a fallback rate so a real-looking price is on screen
+     from the very first paint — never a "fetching…" message. The real
+     fetch (duo/gold-rate.js) silently overwrites this the moment it
+     resolves, indistinguishably since the markup matches exactly. -->
+<div id="goldTicker" aria-live="polite">
+  <span class="gt-live"><i></i>LIVE</span>
+  <span class="gt-city-wrap"><span class="gt-city" id="gtCity">Mumbai</span></span>
+  <span class="gt-item">24K <b id="gt24">₹15,870</b><i class="gp-suffix">/g</i></span>
+  <span class="gt-item">22K <b id="gt22">₹14,548</b><i class="gp-suffix">/g</i></span>
+  <span class="gt-item">18K <b id="gt18">₹11,903</b><i class="gp-suffix">/g</i></span>
+  <span class="gt-when" id="gtWhen">estimated</span>
+</div>
 
 <!-- ============ ANNOUNCEMENT ============ -->
 <div class="ticker">
@@ -1362,9 +1409,9 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) bStart();
    uploaded — swap `img` for the real files whenever they're ready.
    ============================================================ */
 const POSTERS = [
-  {img:'duo/img/necklace-portrait.webp', title:'The Glam Days Edit', desc:'Statement necklaces built for evenings that matter.', cta:'Explore collection', link:'category?cat=Necklaces', wide:true},
-  {img:'duo/img/ring-portrait.webp',     title:'Stunning Every Ear', desc:'Studs to bold drops, freshly landed.',                cta:'Shop earrings',       link:'category?cat=Earrings'},
-  {img:'duo/img/necklace-detail.webp',   title:'18Kt Everyday Gold', desc:'Lightweight pieces made for daily wear.',             cta:'Shop the range',      link:'category'}
+  {img:'duo/img/new-glam-days.jpg',     title:'The Glam Days Edit', desc:'Statement necklaces built for evenings that matter.', cta:'Explore collection', link:'category?cat=Necklaces', wide:true},
+  {img:'duo/img/new-earrings.jpg',      title:'Stunning Every Ear', desc:'Studs to bold drops, freshly landed.',                cta:'Shop earrings',       link:'category?cat=Earrings'},
+  {img:'duo/img/new-everyday-gold.jpg', title:'18Kt Everyday Gold', desc:'Lightweight pieces made for daily wear.',             cta:'Shop the range',      link:'category'}
 ];
 document.getElementById('posters').innerHTML = POSTERS.map(p => `
   <a class="bento${p.tall ? ' tall' : ''}${p.wide ? ' wide' : ''}" href="${p.link}" data-cursor="View">
@@ -1622,6 +1669,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
 /* ---------- OPENING LOADER ---------- */
 const pre = document.getElementById('preload');
 const preVideo = document.getElementById('preVideo');
+const preGate = document.getElementById('preGate');
 document.body.style.overflow = 'hidden';
 
 let cleared = false;
@@ -1635,15 +1683,27 @@ const closePre = () => {
   setTimeout(() => pre.remove(), 1800);
 };
 
+let gateShown = false;
+const showGate = () => {
+  if (gateShown || cleared) return;
+  gateShown = true;
+  pre.classList.add('show-gate');
+};
+
 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   closePre();
 } else if (preVideo) {
-  preVideo.addEventListener('ended', closePre);
+  // the video plays once and holds on its final (logo) frame — entering
+  // the site is now a deliberate click on the gate, not automatic
+  preVideo.addEventListener('ended', showGate);
   preVideo.addEventListener('error', closePre);
   preVideo.play().catch(closePre);
   // failsafe if 'ended' never fires (slow network, autoplay quirks) —
   // the clip runs ~11.25s, so this is well past its natural length
-  setTimeout(closePre, 12500);
+  setTimeout(showGate, 12500);
+  // ultimate failsafe so a stuck video/gate can never trap someone here
+  setTimeout(closePre, 25000);
+  preGate.addEventListener('click', closePre);
 } else {
   closePre();
 }
