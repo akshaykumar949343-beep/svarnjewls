@@ -530,7 +530,7 @@ body:not(.revealed) .ticker{opacity:0}
 }
 .center-head p{color:var(--stone);font-size:18px}
 .world{
-  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr auto;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
   gap:clamp(12px,1.6vw,22px);
 }
 
@@ -1457,11 +1457,13 @@ document.getElementById('catgrid').innerHTML = CATS.map(c => `
    These are occasion/theme groupings rather than product categories,
    so — until the catalog carries occasion tags of its own — they route
    to the full shop rather than a (currently nonexistent) filtered view. */
+/* even 2x2 grid — Gifting sits directly beside Daily wear, all four
+   cards the same size, so nothing sits alone in its own row */
 const WORLD = [
-  {n:'Bridal',      img:ph(1200,1600,'BRIDAL','#004374','#FFFFFF'),      desc:'Heirloom-worthy sets for the big day.',       link:'category', tall:true},
+  {n:'Bridal',      img:ph(1200,900,'BRIDAL','#004374','#FFFFFF'),      desc:'Heirloom-worthy sets for the big day.',       link:'category'},
   {n:'Diamond',     img:ph(1200,900,'DIAMOND','#E7DED0','#004374'),      desc:'Certified stones, set to catch every angle.', link:'category'},
   {n:'Daily wear',  img:ph(1200,900,'DAILY WEAR','#124F7B','#FFFFFF'),   desc:'Light, durable pieces for ordinary days.',    link:'category'},
-  {n:'Gifting',     img:ph(1600,540,'GIFTING','#EED9BE','#004374'),      desc:'Ready-to-gift picks for every occasion.',     link:'category', wide:true}
+  {n:'Gifting',     img:ph(1200,900,'GIFTING','#EED9BE','#004374'),      desc:'Ready-to-gift picks for every occasion.',     link:'category'}
 ];
 document.getElementById('worldGrid').innerHTML = WORLD.map(w => `
   <a class="bento${w.tall ? ' tall' : ''}${w.wide ? ' wide' : ''}" href="${w.link}" data-cursor="Explore">
