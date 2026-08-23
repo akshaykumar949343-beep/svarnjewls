@@ -441,7 +441,7 @@ body:not(.revealed) .ticker{opacity:0}
   border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,90px);align-items:center;
 }
-.editorial .frame{aspect-ratio:3/4;overflow:hidden}
+.editorial .frame{aspect-ratio:3/4;overflow:hidden;max-width:380px;margin:0 auto;border-radius:20px}
 .editorial blockquote{font-family:var(--display);font-weight:400;font-size:clamp(26px,3.4vw,42px);line-height:1.24}
 .editorial .rule{width:52px;height:1px;background:var(--blue);margin:26px 0}
 .editorial p{color:var(--stone);max-width:400px;margin-bottom:30px}
@@ -1534,7 +1534,7 @@ document.getElementById('worldGrid').innerHTML = WORLD.map(w => `
 const REELS = [
   {title:'Layered Necklace Edit', src:'duo/video/reel-1.mp4', poster:'duo/video/reel-1-poster.jpg'},
   {title:'Everyday Charm Edit',   src:'duo/video/reel-2.mp4', poster:'duo/video/reel-2-poster.jpg'},
-  {title:'Inside the Atelier',   src:'', poster:ph(720,1280,'VIDEO 03','#E7DED0','#004374')},
+  {title:'Statement Necklace Edit', src:'duo/video/reel-3.mp4', poster:'duo/video/reel-3-poster.jpg'},
   {title:'Bridal Neckline Edit', src:'', poster:ph(720,1280,'VIDEO 04','#EED9BE','#004374')},
   {title:'How to Layer Chains',  src:'', poster:ph(720,1280,'VIDEO 05','#003A66','#EED9BE')}
 ];
