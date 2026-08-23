@@ -866,7 +866,6 @@ body.nav-open{overflow:hidden}
   .cats{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:680px){
-  #new{display:none}
   #wear{display:none}
   #categories{display:none}
   .rail{grid-template-columns:repeat(2,1fr)}
@@ -1508,10 +1507,10 @@ document.getElementById('catgrid').innerHTML = CATS.map(c => `
 /* even 2x2 grid — Gifting sits directly beside Daily wear, all four
    cards the same size, so nothing sits alone in its own row */
 const WORLD = [
-  {n:'Bridal',      img:ph(1200,900,'BRIDAL','#004374','#FFFFFF'),      desc:'Heirloom-worthy sets for the big day.',       link:'category'},
-  {n:'Diamond',     img:ph(1200,900,'DIAMOND','#E7DED0','#004374'),      desc:'Certified stones, set to catch every angle.', link:'category'},
-  {n:'Daily wear',  img:ph(1200,900,'DAILY WEAR','#124F7B','#FFFFFF'),   desc:'Light, durable pieces for ordinary days.',    link:'category'},
-  {n:'Gifting',     img:ph(1200,900,'GIFTING','#EED9BE','#004374'),      desc:'Ready-to-gift picks for every occasion.',     link:'category'}
+  {n:'Bridal',      img:'duo/img/world-bridal.jpg',     desc:'Heirloom-worthy sets for the big day.',       link:'category'},
+  {n:'Diamond',     img:'duo/img/world-diamond.jpg',     desc:'Certified stones, set to catch every angle.', link:'category'},
+  {n:'Daily wear',  img:'duo/img/world-daily-wear.jpg',  desc:'Light, durable pieces for ordinary days.',    link:'category'},
+  {n:'Gifting',     img:'duo/img/world-gifting.jpg',     desc:'Ready-to-gift picks for every occasion.',     link:'category'}
 ];
 document.getElementById('worldGrid').innerHTML = WORLD.map(w => `
   <a class="bento${w.tall ? ' tall' : ''}${w.wide ? ' wide' : ''}" href="${w.link}" data-cursor="Explore">
@@ -1528,8 +1527,8 @@ document.getElementById('worldGrid').innerHTML = WORLD.map(w => `
    Shoot vertical, 9:16. Centre one autoplays muted; tap 🔇 for sound.
    ============================================================ */
 const REELS = [
-  {title:'Halo Diamond Bangle',  src:'', poster:ph(720,1280,'VIDEO 01','#004374','#FFFFFF')},
-  {title:'Everyday Gold Hoops',  src:'', poster:ph(720,1280,'VIDEO 02','#124F7B','#FFFFFF')},
+  {title:'Layered Necklace Edit', src:'duo/video/reel-1.mp4', poster:'duo/video/reel-1-poster.jpg'},
+  {title:'Everyday Charm Edit',   src:'duo/video/reel-2.mp4', poster:'duo/video/reel-2-poster.jpg'},
   {title:'Inside the Atelier',   src:'', poster:ph(720,1280,'VIDEO 03','#E7DED0','#004374')},
   {title:'Bridal Neckline Edit', src:'', poster:ph(720,1280,'VIDEO 04','#EED9BE','#004374')},
   {title:'How to Layer Chains',  src:'', poster:ph(720,1280,'VIDEO 05','#003A66','#EED9BE')}
