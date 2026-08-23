@@ -455,7 +455,7 @@ body:not(.revealed) .ticker{opacity:0}
 
 /* ============ COLLECTION POSTERS (New Arrivals) ============ */
 .posters{
-  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  display:grid;grid-template-columns:repeat(3,1fr);
   gap:clamp(10px,1.4vw,18px);
 }
 
@@ -1421,7 +1421,7 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) bStart();
    uploaded — swap `img` for the real files whenever they're ready.
    ============================================================ */
 const POSTERS = [
-  {img:'duo/img/new-glam-days.jpg',     title:'The Glam Days Edit', desc:'Statement necklaces built for evenings that matter.', cta:'Explore collection', link:'category?cat=Necklaces', tall:true},
+  {img:'duo/img/new-glam-days.jpg',     title:'The Glam Days Edit', desc:'Statement necklaces built for evenings that matter.', cta:'Explore collection', link:'category?cat=Necklaces'},
   {img:'duo/img/new-earrings.jpg',      title:'Stunning Every Ear', desc:'Studs to bold drops, freshly landed.',                cta:'Shop earrings',       link:'category?cat=Earrings'},
   {img:'duo/img/new-everyday-gold.jpg', title:'18Kt Everyday Gold', desc:'Lightweight pieces made for daily wear.',             cta:'Shop the range',      link:'category'}
 ];
