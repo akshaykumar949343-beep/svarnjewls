@@ -867,6 +867,8 @@ body.nav-open{overflow:hidden}
 }
 @media(max-width:680px){
   #new{display:none}
+  #wear{display:none}
+  #categories{display:none}
   .rail{grid-template-columns:repeat(2,1fr)}
   .vhero{min-height:460px}
   .vsearch{padding:15px 18px;gap:12px}
@@ -1671,6 +1673,14 @@ const preVideo = document.getElementById('preVideo');
 const preGate = document.getElementById('preGate');
 document.body.style.overflow = 'hidden';
 
+// the site must always start at the top, not wherever the browser
+// remembers scrolling to on a reload/back-navigation — overflow:hidden
+// above hides any drift during the loader, but without this the browser
+// can still silently restore an old scroll position underneath it, so
+// the page appears "opened" mid-scroll the instant it's revealed
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
 let cleared = false;
 const closePre = () => {
   if (cleared) return;
@@ -1679,6 +1689,7 @@ const closePre = () => {
   pre.classList.add('done');
   document.body.classList.add('revealed');
   document.body.style.overflow = '';
+  window.scrollTo(0, 0);
   setTimeout(() => pre.remove(), 1800);
 };
 
