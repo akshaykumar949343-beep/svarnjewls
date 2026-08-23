@@ -42,6 +42,14 @@ function initWear(root) {
   const video = document.getElementById('wearVideo');
   if (!pin || cats.length < 2 || !video) return;
 
+  // the desktop clip is shot landscape; phone widths get their own portrait
+  // re-shoot instead (same category order/timing, so SEGMENTS below still
+  // applies — object-fit:cover would otherwise crop the landscape source
+  // down to a sliver, same issue as the hero video)
+  if (window.matchMedia('(max-width:680px)').matches) {
+    video.src = 'duo/video/category-video-mobile.mp4';
+  }
+
   const N = cats.length;
 
   // lazily start loading the video once the section is within reach, rather
