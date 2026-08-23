@@ -1666,6 +1666,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
 const pre = document.getElementById('preload');
 const preVideo = document.getElementById('preVideo');
 const preGate = document.getElementById('preGate');
+const INTRO_SEEN_KEY = 'svarnIntroSeen';
 
 // the site must always start at the top, not wherever the browser
 // remembers scrolling to on a reload/back-navigation — overflow:hidden
@@ -1675,41 +1676,55 @@ const preGate = document.getElementById('preGate');
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 
-document.body.style.overflow = 'hidden';
+// the intro only ever plays the first time someone opens the site —
+// localStorage (not sessionStorage) so it stays skipped on later visits
+// too, not just for the rest of one browser session. Clicking the logo
+// from category/product pages reloads this page, so this is also what
+// stops it replaying then.
+let introSeen = false;
+try { introSeen = localStorage.getItem(INTRO_SEEN_KEY) === '1'; } catch (e) {}
 
-let cleared = false;
-const closePre = () => {
-  if (cleared) return;
-  cleared = true;
-  pre.classList.add('fly');
-  pre.classList.add('done');
+if (introSeen && pre) {
+  pre.remove();
   document.body.classList.add('revealed');
-  document.body.style.overflow = '';
-  window.scrollTo(0, 0);
-  setTimeout(() => pre.remove(), 1800);
-};
-
-let gateShown = false;
-const showGate = () => {
-  if (gateShown || cleared) return;
-  gateShown = true;
-  pre.classList.add('show-gate');
-};
-
-if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  closePre();
-} else if (preVideo) {
-  // the gate is available the whole time the video plays, not just
-  // once it ends — clicking it is always a deliberate way in
-  showGate();
-  preVideo.addEventListener('ended', showGate);
-  preVideo.addEventListener('error', closePre);
-  preVideo.play().catch(closePre);
-  // ultimate failsafe so a stuck video/gate can never trap someone here
-  setTimeout(closePre, 25000);
-  preGate.addEventListener('click', closePre);
 } else {
-  closePre();
+  document.body.style.overflow = 'hidden';
+
+  let cleared = false;
+  const closePre = () => {
+    if (cleared) return;
+    cleared = true;
+    try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch (e) {}
+    pre.classList.add('fly');
+    pre.classList.add('done');
+    document.body.classList.add('revealed');
+    document.body.style.overflow = '';
+    window.scrollTo(0, 0);
+    setTimeout(() => pre.remove(), 1800);
+  };
+
+  let gateShown = false;
+  const showGate = () => {
+    if (gateShown || cleared) return;
+    gateShown = true;
+    pre.classList.add('show-gate');
+  };
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    closePre();
+  } else if (preVideo) {
+    // the gate is available the whole time the video plays, not just
+    // once it ends — clicking it is always a deliberate way in
+    showGate();
+    preVideo.addEventListener('ended', showGate);
+    preVideo.addEventListener('error', closePre);
+    preVideo.play().catch(closePre);
+    // ultimate failsafe so a stuck video/gate can never trap someone here
+    setTimeout(closePre, 25000);
+    preGate.addEventListener('click', closePre);
+  } else {
+    closePre();
+  }
 }
 
 
