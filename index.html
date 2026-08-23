@@ -414,9 +414,12 @@ body:not(.revealed) .ticker{opacity:0}
 
 /* ============ COLLECTION POSTERS (New Arrivals) ============ */
 .posters{
-  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;
   gap:clamp(12px,1.6vw,22px);
 }
+.posters .bento .bento-media{flex:none}
+.posters .bento.wide .bento-media{aspect-ratio:21/9}
+.posters .bento:not(.wide) .bento-media{aspect-ratio:4/5}
 
 /* ============ BENTO CARDS — shared by New Arrivals + Svarn World ============
    White card, product shot in its own panel, bold headline + short line +
@@ -430,8 +433,7 @@ body:not(.revealed) .ticker{opacity:0}
 }
 .bento:hover{box-shadow:0 24px 48px rgba(20,32,43,.14);transform:translateY(-3px)}
 .bento-media{position:relative;flex:1 1 auto;min-height:120px;overflow:hidden;background:var(--sand)}
-.bento-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.2,0,.2,1)}
-.bento:hover .bento-media img{transform:scale(1.06)}
+.bento-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .bento-body{padding:clamp(18px,2.2vw,30px);flex:none}
 .bento-body b{
   display:block;font-family:var(--sans);font-weight:700;
@@ -549,10 +551,7 @@ body:not(.revealed) .ticker{opacity:0}
   .mq-track:has(.card:hover) .card:not(:hover) .card-img img{transform:scale(.96)}
 
   .posters:has(.bento:hover) .bento:not(:hover){opacity:.65;filter:saturate(.6)}
-  .posters:has(.bento:hover) .bento:not(:hover) img{transform:scale(.96)}
-
   .world:has(.bento:hover) .bento:not(:hover){opacity:.68;filter:saturate(.6)}
-  .world:has(.bento:hover) .bento:not(:hover) img{transform:scale(.96)}
 }
 
 /* ============ VIDEO COVERFLOW ============ */
@@ -1368,9 +1367,9 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) bStart();
    uploaded — swap `img` for the real files whenever they're ready.
    ============================================================ */
 const POSTERS = [
-  {img:'duo/img/necklace-portrait.webp', title:'The Glam Days Edit', desc:'Statement necklaces built for evenings that matter.', cta:'Explore collection', link:'category?cat=Necklaces', tall:true},
+  {img:'duo/img/necklace-portrait.webp', title:'The Glam Days Edit', desc:'Statement necklaces built for evenings that matter.', cta:'Explore collection', link:'category?cat=Necklaces', wide:true},
   {img:'duo/img/ring-portrait.webp',     title:'Stunning Every Ear', desc:'Studs to bold drops, freshly landed.',                cta:'Shop earrings',       link:'category?cat=Earrings'},
-  {img:'duo/img/necklace-detail.webp',   title:'18Kt Everyday Gold', desc:'Lightweight pieces made for daily wear.',             cta:'Shop the range',      link:'category', wide:true}
+  {img:'duo/img/necklace-detail.webp',   title:'18Kt Everyday Gold', desc:'Lightweight pieces made for daily wear.',             cta:'Shop the range',      link:'category'}
 ];
 document.getElementById('posters').innerHTML = POSTERS.map(p => `
   <a class="bento${p.tall ? ' tall' : ''}${p.wide ? ' wide' : ''}" href="${p.link}" data-cursor="View">
