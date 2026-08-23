@@ -481,7 +481,7 @@ body:not(.revealed) .ticker{opacity:0}
 .bento-body i{
   display:inline-flex;align-items:center;gap:8px;font-style:normal;
   font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-  color:#fff;background:var(--w-peacock,#0d6d76);
+  color:#fff;background:var(--blue);
   padding:9px 16px;border-radius:999px;
   transition:background .3s ease;
 }
@@ -1675,51 +1675,62 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
 const pre = document.getElementById('preload');
 const preVideo = document.getElementById('preVideo');
 const preGate = document.getElementById('preGate');
-document.body.style.overflow = 'hidden';
+const INTRO_SEEN_KEY = 'svarnIntroSeen';
 
 // the site must always start at the top, not wherever the browser
 // remembers scrolling to on a reload/back-navigation — overflow:hidden
-// above hides any drift during the loader, but without this the browser
+// below hides any drift during the loader, but without this the browser
 // can still silently restore an old scroll position underneath it, so
 // the page appears "opened" mid-scroll the instant it's revealed
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 
-let cleared = false;
-const closePre = () => {
-  if (cleared) return;
-  cleared = true;
-  pre.classList.add('fly');
-  pre.classList.add('done');
+let introSeen = false;
+try { introSeen = sessionStorage.getItem(INTRO_SEEN_KEY) === '1'; } catch (e) {}
+
+if (introSeen && pre) {
+  // already played this session (eg. navigated home via the logo) —
+  // go straight to the site, no video/gate animation
+  pre.remove();
   document.body.classList.add('revealed');
-  document.body.style.overflow = '';
-  window.scrollTo(0, 0);
-  setTimeout(() => pre.remove(), 1800);
-};
-
-let gateShown = false;
-const showGate = () => {
-  if (gateShown || cleared) return;
-  gateShown = true;
-  pre.classList.add('show-gate');
-};
-
-if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  closePre();
-} else if (preVideo) {
-  // the video plays once and holds on its final (logo) frame — entering
-  // the site is now a deliberate click on the gate, not automatic
-  preVideo.addEventListener('ended', showGate);
-  preVideo.addEventListener('error', closePre);
-  preVideo.play().catch(closePre);
-  // failsafe if 'ended' never fires (slow network, autoplay quirks) —
-  // the clip runs ~10.3s, so this is well past its natural length
-  setTimeout(showGate, 11500);
-  // ultimate failsafe so a stuck video/gate can never trap someone here
-  setTimeout(closePre, 25000);
-  preGate.addEventListener('click', closePre);
 } else {
-  closePre();
+  document.body.style.overflow = 'hidden';
+
+  let cleared = false;
+  const closePre = () => {
+    if (cleared) return;
+    cleared = true;
+    try { sessionStorage.setItem(INTRO_SEEN_KEY, '1'); } catch (e) {}
+    pre.classList.add('fly');
+    pre.classList.add('done');
+    document.body.classList.add('revealed');
+    document.body.style.overflow = '';
+    window.scrollTo(0, 0);
+    setTimeout(() => pre.remove(), 1800);
+  };
+
+  let gateShown = false;
+  const showGate = () => {
+    if (gateShown || cleared) return;
+    gateShown = true;
+    pre.classList.add('show-gate');
+  };
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    closePre();
+  } else if (preVideo) {
+    // the gate is available the whole time the video plays, not just
+    // once it ends — clicking it is always a deliberate way in
+    showGate();
+    preVideo.addEventListener('ended', showGate);
+    preVideo.addEventListener('error', closePre);
+    preVideo.play().catch(closePre);
+    // ultimate failsafe so a stuck video/gate can never trap someone here
+    setTimeout(closePre, 25000);
+    preGate.addEventListener('click', closePre);
+  } else {
+    closePre();
+  }
 }
 
 
