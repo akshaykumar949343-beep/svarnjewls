@@ -417,31 +417,31 @@ body:not(.revealed) .ticker{opacity:0}
   display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;
   gap:clamp(12px,1.6vw,22px);
 }
-.posters .bento .bento-media{flex:none}
-.posters .bento.wide .bento-media{aspect-ratio:21/9}
-.posters .bento:not(.wide) .bento-media{aspect-ratio:4/5}
 
 /* ============ BENTO CARDS — shared by New Arrivals + Svarn World ============
-   White card, product shot in its own panel, bold headline + short line +
-   a small "know more" link — instead of the old full-bleed-photo-with-
-   dark-gradient-and-white-text treatment. */
+   The text sits directly on the poster image itself (title/line/link over
+   a bottom gradient scrim) rather than in a separate panel below it. */
 .bento{
-  position:relative;display:flex;flex-direction:column;
-  background:var(--porcelain);border:1px solid var(--line);border-radius:22px;
-  overflow:hidden;min-height:0;
+  position:relative;display:block;overflow:hidden;
+  border-radius:22px;background:var(--sand);
+  aspect-ratio:4/5;
   transition:box-shadow .4s ease, transform .4s ease;
 }
 .bento:hover{box-shadow:0 24px 48px rgba(20,32,43,.14);transform:translateY(-3px)}
-.bento-media{position:relative;flex:1 1 auto;min-height:120px;overflow:hidden;background:var(--sand)}
+.bento-media{position:absolute;inset:0}
 .bento-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.bento-body{padding:clamp(18px,2.2vw,30px);flex:none}
+.bento::after{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,transparent 40%,rgba(7,12,20,.74) 100%);
+}
+.bento-body{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:clamp(18px,2.2vw,30px)}
 .bento-body b{
   display:block;font-family:var(--sans);font-weight:700;
   font-size:clamp(15px,1.5vw,20px);line-height:1.25;text-transform:uppercase;letter-spacing:.01em;
-  color:var(--ink);margin-bottom:8px;
+  color:#fff;margin-bottom:8px;
 }
 .bento-body p{
-  font-family:var(--sans);font-size:13px;line-height:1.55;color:var(--stone);
+  font-family:var(--sans);font-size:13px;line-height:1.55;color:rgba(255,255,255,.82);
   max-width:30ch;margin-bottom:14px;
 }
 .bento-body i{
@@ -452,15 +452,11 @@ body:not(.revealed) .ticker{opacity:0}
 .bento-body i::after{content:'\2192';transition:transform .3s ease}
 .bento:hover .bento-body i::after{transform:translateX(4px)}
 
-.bento.tall{grid-row:1 / 3}
-.bento.wide{grid-column:1 / 3}
-/* wide cards: image sits beside the text instead of above it */
-.bento.wide{flex-direction:row;align-items:stretch}
-.bento.wide .bento-media{flex:1 1 42%}
-.bento.wide .bento-body{flex:1 1 58%;display:flex;flex-direction:column;justify-content:center}
+.bento.tall{grid-row:1 / 3;aspect-ratio:3/4}
+.bento.wide{grid-column:1 / 3;aspect-ratio:21/9}
+.world .bento.wide{aspect-ratio:24/8}
 @media(max-width:680px){
-  .bento.wide{flex-direction:column}
-  .bento.wide .bento-media,.bento.wide .bento-body{flex:none}
+  .bento.tall,.bento.wide{aspect-ratio:4/5}
 }
 
 /* ============ BESTSELLER MARQUEE ============ */
@@ -846,7 +842,6 @@ body.nav-open{overflow:hidden}
   .reel-arrow{width:38px;height:38px}
   .posters{grid-template-columns:1fr;grid-template-rows:auto}
   .bento.tall,.bento.wide{grid-row:auto;grid-column:auto}
-  .bento-media{aspect-ratio:4/3}
   .cats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .editorial p{max-width:none}
   .footer-grid{grid-template-columns:1fr;gap:30px}
