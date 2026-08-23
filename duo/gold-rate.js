@@ -333,9 +333,11 @@ function renderHeaderBadge(rate) {
 }
 
 async function refresh() {
-  // the ticker/badge always show the live market feed, not the pricing
-  // checkpoint — see getLiveDisplayRate() above for why
-  const rate = await getLiveDisplayRate();
+  // ticker/badge now show the SAME checkpoint-locked rate product prices
+  // use — one number everywhere, fetched at 9:30/13:30/18:30 and held
+  // steady until the next checkpoint, instead of a separately-fetched
+  // "live" number that could disagree with what's actually charged.
+  const rate = await getGoldRate();
   renderTicker(rate);
   renderHeaderBadge(rate);
   document.dispatchEvent(new CustomEvent('goldrate:update', { detail: rate }));
@@ -345,8 +347,8 @@ async function refresh() {
 refresh();
 setInterval(refresh, REFRESH_MS);
 
-/* small public surface other scripts can use — get() is the PRICING rate
-   (checkpoint-locked, used by calcPrice on every page), getLive() is the
-   same continuous feed the ticker displays, exposed in case a future page
-   wants to show it directly */
+/* small public surface other scripts can use — get() is the checkpoint-
+   locked rate (used both for display and by calcPrice on every page);
+   getLive() is the raw continuous market feed, kept only as the
+   fallback getGoldRate() reaches for when no recent checkpoint exists */
 window.GoldRate = { get: getGoldRate, getLive: getLiveDisplayRate, formatINR };
