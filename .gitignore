@@ -22,3 +22,7 @@ Josefin_Sans.zip
 # raw uploaded source images — only the one actually used by a page
 # (copied into duo/img/) needs to be in the deployed site
 catogery_images/
+
+# untrimmed intro video (fades to black at the end) — logo-intro.mp4 is
+# the trimmed version actually used, kept locally for reference
+logo-intro-full-old.mp4
