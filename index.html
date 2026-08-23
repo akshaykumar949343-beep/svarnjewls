@@ -306,6 +306,13 @@ body:not(.revealed) .ticker{opacity:0}
   opacity:0;animation:preIn .8s ease .1s forwards;
 }
 .pre-video video{display:block;width:100%;height:100%;object-fit:cover}
+/* the source clip is a vertical (portrait) film — full-bleed cover works
+   on phone-width screens where it's shot for, but on wider screens
+   cropping it to fill a landscape frame loses the shot entirely, so it
+   letterboxes instead and lets the brand-blue backdrop show at the sides */
+@media(min-width:820px){
+  .pre-video video{object-fit:contain}
+}
 @keyframes preIn{to{opacity:1}}
 .preload.fly .pre-video{opacity:0;transition:opacity .5s ease}
 @media(prefers-reduced-motion:reduce){
