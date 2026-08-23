@@ -417,40 +417,49 @@ body:not(.revealed) .ticker{opacity:0}
   display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
   gap:clamp(12px,1.6vw,22px);
 }
-.poster{position:relative;overflow:hidden;display:block;background:var(--sand)}
-.poster.tall{grid-row:1 / 3;aspect-ratio:5/7}
-.poster figcaption{
-  position:absolute;left:0;right:0;bottom:0;z-index:2;
-  padding:clamp(18px,2.2vw,30px);color:#fff;
-  background:linear-gradient(180deg,transparent,rgba(20,18,15,.6));
-  transition:transform .6s cubic-bezier(.2,0,.2,1);
+
+/* ============ BENTO CARDS — shared by New Arrivals + Svarn World ============
+   White card, product shot in its own panel, bold headline + short line +
+   a small "know more" link — instead of the old full-bleed-photo-with-
+   dark-gradient-and-white-text treatment. */
+.bento{
+  position:relative;display:flex;flex-direction:column;
+  background:var(--porcelain);border:1px solid var(--line);border-radius:22px;
+  overflow:hidden;min-height:0;
+  transition:box-shadow .4s ease, transform .4s ease;
 }
-.poster:hover figcaption{transform:translateY(-4px)}
-.poster figcaption b{
-  display:block;font-family:var(--display);font-weight:400;
-  font-size:clamp(24px,2.6vw,34px);line-height:1.15;margin-bottom:14px;
+.bento:hover{box-shadow:0 24px 48px rgba(20,32,43,.14);transform:translateY(-3px)}
+.bento-media{position:relative;flex:1 1 auto;min-height:120px;overflow:hidden;background:var(--sand)}
+.bento-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.2,0,.2,1)}
+.bento:hover .bento-media img{transform:scale(1.06)}
+.bento-body{padding:clamp(18px,2.2vw,30px);flex:none}
+.bento-body b{
+  display:block;font-family:var(--sans);font-weight:700;
+  font-size:clamp(15px,1.5vw,20px);line-height:1.25;text-transform:uppercase;letter-spacing:.01em;
+  color:var(--ink);margin-bottom:8px;
 }
-/* CTA pill hidden by default, slides/fades in on hover — the Porsche-style reveal */
-.poster figcaption i{
-  position:relative;z-index:0;
-  display:inline-flex;align-items:center;gap:10px;
-  font-style:normal;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:400;
-  color:#fff;padding:11px 18px;
-  border-radius:999px;
-  opacity:0;transform:translateY(10px);
-  transition:opacity .5s cubic-bezier(.2,0,.2,1), transform .5s cubic-bezier(.2,0,.2,1), color .35s ease;
+.bento-body p{
+  font-family:var(--sans);font-size:13px;line-height:1.55;color:var(--stone);
+  max-width:30ch;margin-bottom:14px;
 }
-.poster figcaption i::before{
-  content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;
-  background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  transition:background .35s ease;
+.bento-body i{
+  display:inline-flex;align-items:center;gap:8px;font-style:normal;
+  font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);
 }
-.poster figcaption i::after{content:'\2192';font-size:13px;transition:transform .35s ease}
-.poster:hover figcaption i{opacity:1;transform:none;transition-delay:.08s}
-.poster figcaption i:hover{color:var(--ink)}
-.poster figcaption i:hover::before{background:var(--gold)}
-.poster figcaption i:hover::after{transform:translateX(4px)}
-@media(hover:none){.poster figcaption i{opacity:1;transform:none}}
+.bento-body i::after{content:'\2192';transition:transform .3s ease}
+.bento:hover .bento-body i::after{transform:translateX(4px)}
+
+.bento.tall{grid-row:1 / 3}
+.bento.wide{grid-column:1 / 3}
+/* wide cards: image sits beside the text instead of above it */
+.bento.wide{flex-direction:row;align-items:stretch}
+.bento.wide .bento-media{flex:1 1 42%}
+.bento.wide .bento-body{flex:1 1 58%;display:flex;flex-direction:column;justify-content:center}
+@media(max-width:680px){
+  .bento.wide{flex-direction:column}
+  .bento.wide .bento-media,.bento.wide .bento-body{flex:none}
+}
 
 /* ============ BESTSELLER MARQUEE ============ */
 .marquee{position:relative;overflow:hidden;margin:0 calc(var(--pad) * -1);padding:4px 0}
@@ -526,39 +535,24 @@ body:not(.revealed) .ticker{opacity:0}
   display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr auto;
   gap:clamp(12px,1.6vw,22px);
 }
-.tile{position:relative;overflow:hidden;display:block;background:var(--sand);min-height:0}
-.tile.tall{grid-row:1 / 3;aspect-ratio:3/4}
-.tile.wide{grid-column:1 / 3;aspect-ratio:24/8}
-.tile img{transition:transform 1.6s cubic-bezier(.2,0,.2,1)}
-.tile:hover img{transform:scale(1.05)}
-.tile::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 45%,rgba(0,67,116,.72));
-}
-.tile b{
-  position:absolute;left:0;right:0;bottom:0;z-index:2;
-  padding:clamp(20px,2.6vw,36px);text-align:center;color:#fff;
-  font-family:var(--display);font-weight:400;
-  font-size:clamp(22px,3vw,40px);line-height:1.1;
-}
 
 /* ============ GROUP SPOTLIGHT HOVER ============
    Hover one item in a gallery and it comes forward while its
    neighbours ease back — the rest of the zoom/timing for the
    hovered item itself still comes from each section's own rules. */
 @media (hover:hover) and (pointer:fine){
-  .card, .poster, .tile{transition:opacity .55s ease, filter .55s ease}
+  .card, .bento{transition:opacity .55s ease, filter .55s ease}
 
   .rail:has(.card:hover) .card:not(:hover),
   .mq-track:has(.card:hover) .card:not(:hover){opacity:.62;filter:saturate(.6)}
   .rail:has(.card:hover) .card:not(:hover) .card-img img,
   .mq-track:has(.card:hover) .card:not(:hover) .card-img img{transform:scale(.96)}
 
-  .posters:has(.poster:hover) .poster:not(:hover){opacity:.65;filter:saturate(.6)}
-  .posters:has(.poster:hover) .poster:not(:hover) img{transform:scale(.96)}
+  .posters:has(.bento:hover) .bento:not(:hover){opacity:.65;filter:saturate(.6)}
+  .posters:has(.bento:hover) .bento:not(:hover) img{transform:scale(.96)}
 
-  .world:has(.tile:hover) .tile:not(:hover){opacity:.68;filter:saturate(.6)}
-  .world:has(.tile:hover) .tile:not(:hover) img{transform:scale(.96)}
+  .world:has(.bento:hover) .bento:not(:hover){opacity:.68;filter:saturate(.6)}
+  .world:has(.bento:hover) .bento:not(:hover) img{transform:scale(.96)}
 }
 
 /* ============ VIDEO COVERFLOW ============ */
@@ -850,13 +844,10 @@ body.nav-open{overflow:hidden}
   .vs-ghost{left:50px}
   .vsearch .go{display:none}
   .world{grid-template-columns:1fr;grid-template-rows:none}
-  .tile{aspect-ratio:4/3}
-  .tile.tall{grid-row:auto;aspect-ratio:4/3}
-  .tile.wide{grid-column:auto;aspect-ratio:4/3}
   .reel-arrow{width:38px;height:38px}
   .posters{grid-template-columns:1fr;grid-template-rows:auto}
-  .poster.tall{grid-row:auto}
-  .poster:not(.tall){aspect-ratio:16/10}
+  .bento.tall,.bento.wide{grid-row:auto;grid-column:auto}
+  .bento-media{aspect-ratio:4/3}
   .cats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .editorial p{max-width:none}
   .footer-grid{grid-template-columns:1fr;gap:30px}
@@ -1377,14 +1368,18 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) bStart();
    uploaded — swap `img` for the real files whenever they're ready.
    ============================================================ */
 const POSTERS = [
-  {img:'duo/img/necklace-portrait.webp', title:'The Glam Days Edit', cta:'Explore collection', link:'category?cat=Necklaces', tall:true},
-  {img:'duo/img/ring-portrait.webp',     title:'Stunning Every Ear', cta:'Shop earrings',       link:'category?cat=Earrings'},
-  {img:'duo/img/necklace-detail.webp',   title:'18Kt Everyday Gold', cta:'Shop the range',      link:'category'}
+  {img:'duo/img/necklace-portrait.webp', title:'The Glam Days Edit', desc:'Statement necklaces built for evenings that matter.', cta:'Explore collection', link:'category?cat=Necklaces', tall:true},
+  {img:'duo/img/ring-portrait.webp',     title:'Stunning Every Ear', desc:'Studs to bold drops, freshly landed.',                cta:'Shop earrings',       link:'category?cat=Earrings'},
+  {img:'duo/img/necklace-detail.webp',   title:'18Kt Everyday Gold', desc:'Lightweight pieces made for daily wear.',             cta:'Shop the range',      link:'category', wide:true}
 ];
 document.getElementById('posters').innerHTML = POSTERS.map(p => `
-  <a class="poster${p.tall ? ' tall' : ''}" href="${p.link}" data-cursor="View">
-    <img src="${p.img}" alt="${p.title}" loading="lazy">
-    <figcaption><b>${p.title}</b><i>${p.cta}</i></figcaption>
+  <a class="bento${p.tall ? ' tall' : ''}${p.wide ? ' wide' : ''}" href="${p.link}" data-cursor="View">
+    <span class="bento-media"><img src="${p.img}" alt="${p.title}" loading="lazy"></span>
+    <span class="bento-body">
+      <b>${p.title}</b>
+      <p>${p.desc}</p>
+      <i>${p.cta}</i>
+    </span>
   </a>`).join('');
 
 /* ---------- PRODUCT DATA ----------
@@ -1469,15 +1464,19 @@ document.getElementById('catgrid').innerHTML = CATS.map(c => `
    so — until the catalog carries occasion tags of its own — they route
    to the full shop rather than a (currently nonexistent) filtered view. */
 const WORLD = [
-  {n:'Bridal',      img:ph(1200,1600,'BRIDAL','#004374','#FFFFFF'),      link:'category', tall:true},
-  {n:'Diamond',     img:ph(1200,900,'DIAMOND','#E7DED0','#004374'),      link:'category'},
-  {n:'Daily wear',  img:ph(1200,900,'DAILY WEAR','#124F7B','#FFFFFF'),   link:'category'},
-  {n:'Gifting',     img:ph(1600,540,'GIFTING','#EED9BE','#004374'),      link:'category', wide:true}
+  {n:'Bridal',      img:ph(1200,1600,'BRIDAL','#004374','#FFFFFF'),      desc:'Heirloom-worthy sets for the big day.',       link:'category', tall:true},
+  {n:'Diamond',     img:ph(1200,900,'DIAMOND','#E7DED0','#004374'),      desc:'Certified stones, set to catch every angle.', link:'category'},
+  {n:'Daily wear',  img:ph(1200,900,'DAILY WEAR','#124F7B','#FFFFFF'),   desc:'Light, durable pieces for ordinary days.',    link:'category'},
+  {n:'Gifting',     img:ph(1600,540,'GIFTING','#EED9BE','#004374'),      desc:'Ready-to-gift picks for every occasion.',     link:'category', wide:true}
 ];
 document.getElementById('worldGrid').innerHTML = WORLD.map(w => `
-  <a class="tile${w.tall ? ' tall' : ''}${w.wide ? ' wide' : ''}" href="${w.link}" data-cursor="Explore">
-    <img src="${w.img}" alt="${w.n}" loading="lazy">
-    <b>${w.n}</b>
+  <a class="bento${w.tall ? ' tall' : ''}${w.wide ? ' wide' : ''}" href="${w.link}" data-cursor="Explore">
+    <span class="bento-media"><img src="${w.img}" alt="${w.n}" loading="lazy"></span>
+    <span class="bento-body">
+      <b>${w.n}</b>
+      <p>${w.desc}</p>
+      <i>Know more</i>
+    </span>
   </a>`).join('');
 
 /* ============================================================
@@ -1713,7 +1712,7 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   if (!dot || !gem || !label) return;
 
   const HOVER_SEL = 'a, button, input, textarea, select, label, .btn, .card, .cat, ' +
-    '.tile, .bnr-slide, .reel-arrow, .poster, [role="button"], [data-open], [data-close]';
+    '.bento, .bnr-slide, .reel-arrow, [role="button"], [data-open], [data-close]';
   /* elements carrying data-cursor get their text shown in the label pill beside the diamond */
   const LABEL_SEL = '[data-cursor]';
 
