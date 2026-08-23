@@ -306,13 +306,6 @@ body:not(.revealed) .ticker{opacity:0}
   opacity:0;animation:preIn .8s ease .1s forwards;
 }
 .pre-video video{display:block;width:100%;height:100%;object-fit:cover}
-/* the source clip is a vertical (portrait) film — full-bleed cover works
-   on phone-width screens where it's shot for, but on wider screens
-   cropping it to fill a landscape frame loses the shot entirely, so it
-   letterboxes instead and lets the brand-blue backdrop show at the sides */
-@media(min-width:820px){
-  .pre-video video{object-fit:contain}
-}
 @keyframes preIn{to{opacity:1}}
 .preload.fly .pre-video{opacity:0;transition:opacity .5s ease}
 @media(prefers-reduced-motion:reduce){
@@ -1682,7 +1675,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
 const pre = document.getElementById('preload');
 const preVideo = document.getElementById('preVideo');
 const preGate = document.getElementById('preGate');
-const INTRO_SEEN_KEY = 'svarnIntroSeen';
 
 // the site must always start at the top, not wherever the browser
 // remembers scrolling to on a reload/back-navigation — overflow:hidden
@@ -1692,52 +1684,41 @@ const INTRO_SEEN_KEY = 'svarnIntroSeen';
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 
-let introSeen = false;
-try { introSeen = sessionStorage.getItem(INTRO_SEEN_KEY) === '1'; } catch (e) {}
+document.body.style.overflow = 'hidden';
 
-if (introSeen && pre) {
-  // already played this session (eg. navigated home via the logo) —
-  // go straight to the site, no video/gate animation
-  pre.remove();
+let cleared = false;
+const closePre = () => {
+  if (cleared) return;
+  cleared = true;
+  pre.classList.add('fly');
+  pre.classList.add('done');
   document.body.classList.add('revealed');
+  document.body.style.overflow = '';
+  window.scrollTo(0, 0);
+  setTimeout(() => pre.remove(), 1800);
+};
+
+let gateShown = false;
+const showGate = () => {
+  if (gateShown || cleared) return;
+  gateShown = true;
+  pre.classList.add('show-gate');
+};
+
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  closePre();
+} else if (preVideo) {
+  // the gate is available the whole time the video plays, not just
+  // once it ends — clicking it is always a deliberate way in
+  showGate();
+  preVideo.addEventListener('ended', showGate);
+  preVideo.addEventListener('error', closePre);
+  preVideo.play().catch(closePre);
+  // ultimate failsafe so a stuck video/gate can never trap someone here
+  setTimeout(closePre, 25000);
+  preGate.addEventListener('click', closePre);
 } else {
-  document.body.style.overflow = 'hidden';
-
-  let cleared = false;
-  const closePre = () => {
-    if (cleared) return;
-    cleared = true;
-    try { sessionStorage.setItem(INTRO_SEEN_KEY, '1'); } catch (e) {}
-    pre.classList.add('fly');
-    pre.classList.add('done');
-    document.body.classList.add('revealed');
-    document.body.style.overflow = '';
-    window.scrollTo(0, 0);
-    setTimeout(() => pre.remove(), 1800);
-  };
-
-  let gateShown = false;
-  const showGate = () => {
-    if (gateShown || cleared) return;
-    gateShown = true;
-    pre.classList.add('show-gate');
-  };
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    closePre();
-  } else if (preVideo) {
-    // the gate is available the whole time the video plays, not just
-    // once it ends — clicking it is always a deliberate way in
-    showGate();
-    preVideo.addEventListener('ended', showGate);
-    preVideo.addEventListener('error', closePre);
-    preVideo.play().catch(closePre);
-    // ultimate failsafe so a stuck video/gate can never trap someone here
-    setTimeout(closePre, 25000);
-    preGate.addEventListener('click', closePre);
-  } else {
-    closePre();
-  }
+  closePre();
 }
 
 
