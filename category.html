@@ -1324,14 +1324,22 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
   }
 })();
 
-/* ---------- HEADER: transparent over the film, solid past it ---------- */
+/* ---------- HEADER: transparent over the film, solid past it ----------
+   this page has no dark full-bleed hero for the header to sit
+   transparently over (unlike the homepage's .vhero), so the logo (which
+   defaults to a white/inverted filter meant for a dark backdrop) would
+   be invisible against the plain page background — just keep it solid
+   from the start instead of chasing a hero element that doesn't exist */
 const headerEl = document.querySelector('.header');
 const heroEl = document.querySelector('.vhero');
-const onScroll = () => headerEl.classList.toggle('solid',
-  window.scrollY > (heroEl ? heroEl.offsetHeight - 90 : 40));
-window.addEventListener('scroll', onScroll, {passive:true});
-window.addEventListener('resize', onScroll);
-onScroll();
+if (heroEl) {
+  const onScroll = () => headerEl.classList.toggle('solid', window.scrollY > heroEl.offsetHeight - 90);
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  onScroll();
+} else {
+  headerEl.classList.add('solid');
+}
 
 /* ---------- SCROLL REVEAL ---------- */
 const io = new IntersectionObserver(es => es.forEach(e => {
