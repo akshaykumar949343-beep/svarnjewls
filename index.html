@@ -1729,11 +1729,23 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   /* some browsers only honour these as properties, not attributes */
   hv.muted = true; hv.defaultMuted = true; hv.playsInline = true;
 
-  const PLAYLIST = [
-    { src:'hero.mp4',   start:0 },
-    { src:'hero-2.mp4', start:0 },
-    { src:'hero-3.mp4', start:0 },
-  ];
+  // the desktop playlist is shot landscape; on phone widths it just gets
+  // cropped down to a sliver by object-fit:cover, so mobile gets its own
+  // portrait clip instead of the three-part landscape sequence
+  const isMobile = window.matchMedia('(max-width:680px)').matches;
+  if (isMobile) {
+    hv.poster = 'hero-2-mobile-poster.jpg';
+    hv.src = 'hero_2.mp4';
+    hv.loop = true; // single clip — loop natively instead of reloading on 'ended'
+  }
+
+  const PLAYLIST = isMobile
+    ? [{ src:'hero_2.mp4', start:0 }]
+    : [
+        { src:'hero.mp4',   start:0 },
+        { src:'hero-2.mp4', start:0 },
+        { src:'hero-3.mp4', start:0 },
+      ];
   let i = 0, sought = false;
 
   const seekToStart = () => {
