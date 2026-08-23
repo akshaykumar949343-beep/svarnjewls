@@ -243,18 +243,10 @@ body:not(.revealed) .header{opacity:0}
 }
 @media(max-width:560px){
   /* the icons row (search/bag/gold price/burger) genuinely can't fit on a
-     narrow phone — rather than hide the price, drop it onto its own
-     full-width strip right under the header instead of fighting for
-     space in that row. .header is the nearest positioned ancestor, so
-     this docks exactly at the header's own bottom edge. */
-  .icons .gold-pill{
-    position:absolute;top:100%;left:0;right:0;
-    justify-content:center;
-    padding:9px 16px;border-radius:0;border:none;border-top:1px solid rgba(255,255,255,.18);
-    background:var(--blue);
-  }
-  .gold-pill .gp-extra{display:inline-flex}
-  .gold-pill .gp-suffix{display:inline}
+     narrow phone, and the price strip docked under the header read as
+     clutter at that width — the gold rate is still shown further down
+     in the hero ticker, so it's just hidden from the header here. */
+  .icons .gold-pill{display:none}
 }
 
 .burger{
